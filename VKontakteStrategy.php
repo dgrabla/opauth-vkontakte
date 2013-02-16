@@ -9,23 +9,23 @@ class VKontakteStrategy extends OpauthStrategy{
 	/**
 	 * Compulsory config keys, listed as unassociative arrays
 	 */
-	public $expects = array('key', 'secret');
+	public $expects = array('app_id', 'app_secret');
 	
 	/**
 	 * Optional config keys with respective default values, listed as associative arrays
 	 */
 	public $defaults = array(
-		'redirect_uri' => '{complete_url_to_strategy}vkontakte_callback',
-		'scope' => '',  // Check http://vk.com/developers.php?oid=-17680044&p=Application_Access_Rights
+		'redirect_uri' => '{complete_url_to_strategy}int_callback',
+		'scope' => 'friends',  // Check http://vk.com/developers.php?oid=-17680044&p=Application_Access_Rights
 	);
 
 	/**
 	 * Auth request
 	 */
 	public function request(){
-		$url = 'http://api.vkontakte.ru/oauth/authorize';
+		$url = 'https://oauth.vk.com/authorize';
 		$params = array(
-			'client_id' => $this->strategy['key'],
+			'client_id' => $this->strategy['app_id'],
 			'scope' => $this->strategy['scope'],
 			'redirect_uri' => $this->strategy['redirect_uri'],
 			'response_type' => 'code',
@@ -37,12 +37,12 @@ class VKontakteStrategy extends OpauthStrategy{
 	/**
 	 * Internal callback to get the code and request que authorization token, after VKontakte's OAuth
 	 */
-	public function vkontakte_callback(){
+	public function int_callback(){
 		if (array_key_exists('code', $_GET) && !empty($_GET['code'])){
-			$url = 'https://api.vkontakte.ru/oauth/access_token'; //DGB 2012-11-06 Notice VK documentation is wrong, because they DO require HTTPS
+			$url = 'https://oauth.vk.com/access_token'; //DGB 2012-11-06 Notice VK documentation is wrong, because they DO require HTTPS
 			$params = array(
-				'client_id' =>$this->strategy['key'],
-				'client_secret' => $this->strategy['secret'],
+				'client_id' =>$this->strategy['app_id'],
+				'client_secret' => $this->strategy['app_secret'],
 				'code' => $_GET['code'],       
 				'redirect_uri'=> $this->strategy['redirect_uri'],
 			);
@@ -61,8 +61,9 @@ class VKontakteStrategy extends OpauthStrategy{
 			$results=json_decode($response,true);	
 			$vkuser_ = $this->getuser($results['access_token'],$results['user_id']); 
 			$vkuser = $vkuser_['response']['0'];
-			$this->auth = array(
-				  'uid' => $vkuser['uid'],
+				$this->auth = array(
+					'provider' => 'VKontakte',
+					'uid' => $vkuser['uid'],
 					'info' => array(
 					),
 					'credentials' => array(
@@ -96,8 +97,8 @@ class VKontakteStrategy extends OpauthStrategy{
 		else
 		{
 			$error = array(
-				'code' => $_GET['error'],
-				'message' => $_GET['error_description'],
+				'code' => isset($_GET['error'])?$_GET['error']:0,
+				'message' => isset($_GET['error_description'])?$_GET['error_description']:'',
 				'raw' => $_GET
 			);
 			
@@ -123,5 +124,5 @@ class VKontakteStrategy extends OpauthStrategy{
 			);
 			$this->errorCallback($error);
 		}
-} 
+	} 
 }

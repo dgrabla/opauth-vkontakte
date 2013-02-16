@@ -15,7 +15,7 @@ Getting started
    ```
 2. Create VK application at http://vk.com/developers.php
 
-3. Configure Opauth-VKontact strategy with `key` and `secret`.
+3. Configure Opauth-VKontact strategy with `app_id` and `app_secret`.
 
 4. Direct user to `http://path_to_opauth/vkontakte` to authenticate
 
@@ -27,8 +27,8 @@ Required parameters:
 ```php
 <?php
 'VKontakte' => array(
-	'key' => 'YOUR APP KEY',
-	'secret' => 'YOUR APP SECRET'
+	'app_id' => 'YOUR APP ID',
+	'app_secret' => 'YOUR APP SECRET'
 )
 ```
 
