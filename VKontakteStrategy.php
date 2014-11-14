@@ -77,6 +77,7 @@ class VKontakteStrategy extends OpauthStrategy{
 				if (!empty($vkuser['screen_name'])) $this->auth['info']['nickname'] = $vkuser['screen_name'];
 				if (!empty($vkuser['sex']) and ($vkuser['sex']!='0')) $this->auth['info']['gender']=($vkuser['sex']=='1')?'female':'male';
 				if (!empty($vkuser['photo_big'])) $this->auth['info']['image'] = $vkuser['photo_big'];
+				if (!empty($results['email'])) $this->auth['info']['email'] = $results['email'];
 
          $this->callback();
 
