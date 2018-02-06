@@ -6,6 +6,11 @@
 
 class VKontakteStrategy extends OpauthStrategy{
 	
+        /**
+         * https://vk.com/dev/api_requests
+         */
+        const VER = '5.71';
+    
 	/**
 	 * Compulsory config keys, listed as unassociative arrays
 	 */
@@ -55,7 +60,7 @@ class VKontakteStrategy extends OpauthStrategy{
 						'headers' => $headers
 					)
 				);
-				exit();
+
 				$this->errorCallback($error);
 			}
 			$results=json_decode($response,true);	
@@ -63,7 +68,7 @@ class VKontakteStrategy extends OpauthStrategy{
 			$vkuser = $vkuser_['response']['0'];
 				$this->auth = array(
 					'provider' => 'VKontakte',
-					'uid' => $vkuser['uid'],
+					'uid' => $vkuser['id'],
 					'info' => array(
 					),
 					'credentials' => array(
@@ -79,21 +84,8 @@ class VKontakteStrategy extends OpauthStrategy{
 				if (!empty($vkuser['photo_big'])) $this->auth['info']['image'] = $vkuser['photo_big'];
 				if (!empty($results['email'])) $this->auth['info']['email'] = $results['email'];
 
-         $this->callback();
+                    $this->callback();
 
-				 // If the data doesn't seem to be written to the session, it is probably because your sessions are
-				// stored in the database and your session table is not encoded in UTF8. 
-				// The following lines will jump over the security but will allow you to use
-				 // the plugin without utf8 support in the database.
-
-         // $completeUrl = Configure::read('Opauth._cakephp_plugin_complete_url');
-         // if (empty($completeUrl)) $completeUrl = Router::url('/opauth-complete');
-         // $CakeRequest = new CakeRequest('/opauth-complete');
-         // $data['auth'] = $this->auth;
-         // $CakeRequest->data = $data;
-         // $Dispatcher = new Dispatcher();
-         // $Dispatcher->dispatch( $CakeRequest, new CakeResponse() );
-         // exit();
 		}
 		else
 		{
@@ -109,7 +101,8 @@ class VKontakteStrategy extends OpauthStrategy{
 	
 	private function getuser($access_token,$uid){
 			$fields='uid, first_name, last_name, nickname, screen_name, sex, bdate, photo, photo_medium, photo_big, rate, contacts';
-			$vkuser = $this->serverget('https://api.vk.com/method/users.get', array('access_token' => $access_token,'uid'=>$uid,'fields'=>$fields));
+			$vkuser = $this->serverget('https://api.vk.com/method/users.get', 
+                                array('access_token' => $access_token,'uid'=>$uid,'fields'=>$fields, 'v' => self::VER), null, $headers);
 			if (!empty($vkuser))
 			{
 				return json_decode($vkuser,true);
